@@ -1,0 +1,7 @@
+def test3(a):
+    #test2(a)
+    if a == 0:
+        return 5
+
+a = test3(0)
+print a 

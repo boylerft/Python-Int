@@ -1,0 +1,61 @@
+
+#ifndef __PARSER_HPP
+#define __PARSER_HPP
+
+#include "Token.hpp"
+#include "Tokenizer.hpp"
+#include "SymTab.hpp"
+#include "ArithExpr.hpp"
+#include "Statements.hpp"
+//#include "StringNode.hpp"
+
+#include<vector>
+#include<iostream>
+#include<map>
+
+
+class Parser {
+public:
+    Parser(Tokenizer &tokenizer) : tokenizer{tokenizer} {}
+
+    Statements *statements(SymTab &symTab);
+    Statements *suite(SymTab &symTab);
+    Statements *func_suite(SymTab &symTab);
+
+    AssignmentStatement *assignStatement();
+    PrintStatement *printStatement();
+    ForStatement *forStatement(SymTab &symTab);
+    IfStatement *ifStatement(SymTab &symTab);
+    FuncStatement *funcStatement(SymTab &symTab);
+    CallFunc *callStatement(Token fName);
+    ReturnStatement *returnStatement();
+    
+    std::vector<ExprNode*> testList();
+    std::vector<ExprNode*> arrayInit();
+    std::vector<std::string> parameter_list();
+    ExprNode *test();
+    ExprNode *or_test();
+    ExprNode *and_test();
+    ExprNode *not_test();
+    ExprNode *callExpr(Token fName);
+    
+    ExprNode *rel_expr();
+    ExprNode *rel_term();
+    ExprNode *rel_primary();
+    
+    ExprNode *expr();
+    ExprNode *term();
+    ExprNode *factor();
+    ExprNode *primary();
+
+    std::string id();
+
+private:
+    Tokenizer &tokenizer;
+
+    void die(std::string where, std::string message, Token &token);
+
+};
+
+#endif
+
