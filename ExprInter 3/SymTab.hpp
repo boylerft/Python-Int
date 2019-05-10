@@ -25,6 +25,7 @@ public:
     void setValueForString(std::string vName, std::string valueD);
     void setValueForArr(std::string vName, std::vector<int> elems);
     void setValueForRet(int valueD);
+    void setValueForRet(std::string valueD);
     bool isDefined(std::string vName);
     TypeDescriptor *getValueFor(std::string vName);
     //std::map<std::string, TypeDescriptor *> openScope();
@@ -35,6 +36,9 @@ public:
     
     void addFunc(std::string fName, FuncStatement* func);
     FuncStatement *findFunc(std::string fName);
+    
+    bool getReturnBool();
+    void setReturnBool();
 
 private:
     //std::map<std::string, TypeDescriptor *> symTab;

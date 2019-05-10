@@ -336,6 +336,7 @@ TypeDescriptor *CallExpr::evalFunc(SymTab &symTab) {
     //std::cout << "hhhdhdhdhdhd" << std::endl;
     // close the scope
     symTab.closeScope();
+    symTab.setReturnBool();
     //TypeDescriptor *dummy = nullptr;
     return getReturn();
     

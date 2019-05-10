@@ -1,7 +1,15 @@
-def test3(a):
-    #test2(a)
+def test(a):
     if a == 0:
-        return 5
+        return 1
+    return 2
+def test3(a):
+    print a
+    if a == 0:
+        return 0
+    else:
+        return test3(a-1)
 
-a = test3(0)
+a = test3(10)
 print a 
+
+print test(0)

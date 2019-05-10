@@ -50,6 +50,18 @@ void SymTab::setValueForRet(int valueD) {
     scope.push(symTab);
 }
 
+void SymTab::setValueForRet(std::string valueD) {
+    std::map<std::string, TypeDescriptor *> symTab = scope.top();
+    scope.pop();
+    std::cout << "return <- " << valueD << std::endl;
+    StringDescriptor *desc = new StringDescriptor(TypeDescriptor::STRING);
+    desc->value.stringValue = valueD;
+    std::string vName = "return";
+    _isReturn = true;
+    symTab[vName] = desc;
+    scope.push(symTab);
+}
+
 
 bool SymTab::isDefined(std::string vName) {
     std::map<std::string, TypeDescriptor *> symTab = scope.top();
@@ -90,7 +102,7 @@ TypeDescriptor *SymTab::getReturnVal() {
     if (_isReturn) {
         std::map<std::string, TypeDescriptor *> symTab = scope.top();
         NumberDescriptor *desc = dynamic_cast<NumberDescriptor *>(symTab.find("return")->second);
-        _isReturn = false;
+        //_isReturn = false;
         return desc;
     }
     else {
@@ -105,5 +117,13 @@ void SymTab::addFunc(std::string fName, FuncStatement* func) {
 
 FuncStatement *SymTab::findFunc(std::string fName) {
     return funcTab.find(fName)->second;
+}
+
+bool SymTab::getReturnBool() {
+    return _isReturn;
+}
+
+void SymTab::setReturnBool() {
+    _isReturn = false;
 }
 

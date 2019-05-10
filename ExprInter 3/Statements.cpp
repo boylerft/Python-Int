@@ -27,17 +27,31 @@ void Statements::print() {
 }
 
 void Statements::evaluate(SymTab &symTab) {
+    //bool retFlag = false;
+    /*
     for (auto s: _statements) {
-        ReturnStatement *ret = dynamic_cast<ReturnStatement*>(s);
-        if (ret == nullptr) {
-            std::cout << "no return" << std::endl;
-            s->evaluate(symTab);
+        if (retFlag) {
+            continue;
         }
         else {
-            std::cout << "return" << std::endl;
-            s->evaluate(symTab);
-            break;
+            ReturnStatement *ret = dynamic_cast<ReturnStatement*>(s);
+            if (ret == nullptr) {
+                std::cout << "no return" << std::endl;
+                s->evaluate(symTab);
+            }
+            else {
+                std::cout << "return" << std::endl;
+                s->evaluate(symTab);
+                retFlag = true;
+            }
         }
+    }
+    */
+    for (auto s: _statements) {
+        if (symTab.getReturnBool())
+            break;
+        else 
+            s->evaluate(symTab);
     }
 }
 
@@ -463,9 +477,87 @@ ReturnStatement::ReturnStatement(ExprNode *expr):
 // need to implement strings, variables, infix expression, and function calls
 void ReturnStatement::evaluate(SymTab &symTab) {
     //std::cout << "doees nothing yet" << std::endl;
-    auto val = returnExpr()->evaluate(symTab);
-    symTab.setValueForRet(val);
+    //auto val = returnExpr()->evaluate(symTab);
+    //symTab.setValueForRet(val);
+    if (returnExpr()->token().isName()) {
+            CallExpr *tempCall = dynamic_cast<CallExpr*>(returnExpr());
+            if (tempCall != nullptr) {
+                TypeDescriptor *funcCall = tempCall->evalFunc(symTab);
+                if (funcCall == nullptr) {
+                    std::cout << "Error with function:: printing with no return value " << std::endl;
+                    exit(2);
+                }
+                else if (funcCall->checkIfInt()) {
+                    //int rhs = l[i]->evaluate(symTab);
+                    NumberDescriptor *desc = dynamic_cast<NumberDescriptor*>(funcCall);
+                    int rhs = desc->value.intValue;
+                    symTab.setValueForRet(rhs);
+                    //consolePrint += std::to_string(rhs);
+                }
+                else {
+                    //std::string rhs = l[i]->evaluateStr(symTab);
+                    StringDescriptor *desc = dynamic_cast<StringDescriptor*>(funcCall);
+                    std::string rhs = desc->value.stringValue;
+                    symTab.setValueForRet(rhs);
+                    //consolePrint += rhs;
+                }
+            }
+            else {
+                TypeDescriptor *desc = symTab.getValueFor(returnExpr()->token().getName());
+                if (desc->checkIfInt()){
+                    int rhs = returnExpr()->evaluate(symTab);
+                    symTab.setValueForRet(rhs);
+                }
+                else {
+                    std::string rhs = returnExpr()->evaluateStr(symTab);
+                    symTab.setValueForRet(rhs);
+                }
+            }
+        } // Handles string values
+        else if (returnExpr()->token().isStringValue()) {
+            std::string rhs = returnExpr()->evaluateStr(symTab);
+            symTab.setValueForRet(rhs);
+        } // Handles integer values
+        else if (returnExpr()->token().isWholeNumber()) {
+            int rhs = returnExpr()->evaluate(symTab);
+            symTab.setValueForRet(rhs);
+        } // Handles infix expressions for strings and ints
+        else if (returnExpr()->token().isArithmeticOperator()){
+            InfixExprNode *lNode = dynamic_cast<InfixExprNode*>(returnExpr());
+            //lNode->right()->token().print();
+            while(lNode->right()->token().isArithmeticOperator()) {
+                lNode = dynamic_cast<InfixExprNode*>(lNode->right());
+            }
+            if (lNode->right()->token().isName()){
+                TypeDescriptor *desc = symTab.getValueFor(lNode->right()->token().getName());
+                    if (desc->checkIfInt()){
+                        int rhs = returnExpr()->evaluate(symTab);
+                        symTab.setValueForRet(rhs);
+                    }
+                    else {
+                        std::string rhs = returnExpr()->evaluateStr(symTab);
+                        symTab.setValueForRet(rhs);
+                    }
+            }
+            else if (lNode->right()->token().isWholeNumber()) {
+                int rhs = returnExpr()->evaluate(symTab);
+                symTab.setValueForRet(rhs);
+            }
+            else {
+                //rhsExpression()->token().print();
+                std::string rhs = returnExpr()->evaluateStr(symTab);
+                symTab.setValueForRet(rhs);
+            }
+
+        }
+        else if (returnExpr()->token().isRelationalOperator()) {
+            std::cout << std::endl;
+            std::cout << std::endl;
+            int rhs = returnExpr()->evaluate(symTab);
+            symTab.setValueForRet(rhs);
+        }
 }
+
 
 ExprNode *&ReturnStatement::returnExpr() {
     return _returnExpr;
