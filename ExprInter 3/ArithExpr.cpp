@@ -157,19 +157,98 @@ forRange::forRange(Token token) : ExprNode{token}, _start{0}, _stop{0}, _step{1}
 
 void forRange::setRange(std::vector<ExprNode*> itr, SymTab &symTab) {
     if (itr.size() == 3) {
+        for (int i = 0; i < itr.size(); i++) {
+            int rhs;
+            CallExpr *tempCall = dynamic_cast<CallExpr*>(itr[i]);
+            if (tempCall != nullptr) {
+                TypeDescriptor *funcCall = tempCall->evalFunc(symTab);
+                if (funcCall == nullptr) {
+                    std::cout << "Error with function:: returning with no return value " << std::endl;
+                    exit(2);
+                }
+                else if (funcCall->checkIfInt()) {
+                    //int rhs = l[i]->evaluate(symTab);
+                    NumberDescriptor *desc = dynamic_cast<NumberDescriptor*>(funcCall);
+                    rhs = desc->value.intValue;
+                    //consolePrint += std::to_string(rhs);
+                }
+            }
+            else {
+                rhs = itr[i]->evaluate(symTab);
+            }
+            if (i == 0)
+                getStart() = rhs;
+            else if (i == 1)
+                getStop() = rhs;
+            else if (i == 2)
+                getStep() = rhs;
+        }
+        /*
         getStart() = itr[0]->evaluate(symTab);
         getStop() = itr[1]->evaluate(symTab);
         getStep() = itr[2]->evaluate(symTab);
+        */
     }
     else if (itr.size() == 2) {
+        std::cout << "Here for range" << std::endl;
+        for (int i = 0; i < itr.size(); i++) {
+            int rhs;
+            CallExpr *tempCall = dynamic_cast<CallExpr*>(itr[i]);
+            if (tempCall != nullptr) {
+                TypeDescriptor *funcCall = tempCall->evalFunc(symTab);
+                if (funcCall == nullptr) {
+                    std::cout << "Error with function:: returning with no return value " << std::endl;
+                    exit(2);
+                }
+                else if (funcCall->checkIfInt()) {
+                    //int rhs = l[i]->evaluate(symTab);
+                    NumberDescriptor *desc = dynamic_cast<NumberDescriptor*>(funcCall);
+                    rhs = desc->value.intValue;
+                    //consolePrint += std::to_string(rhs);
+                }
+            }
+            else {
+                rhs = itr[i]->evaluate(symTab);
+            }
+            if (i == 0)
+                getStart() = rhs;
+            else if (i == 1)
+                getStop() = rhs;
+        }
+        getStep() = 1;
+        /*
         getStart() = itr[0]->evaluate(symTab);
         getStop() = itr[1]->evaluate(symTab);
         getStep() = 1;
+        */
     }
     else if (itr.size() == 1){
+            int rhs;
+            CallExpr *tempCall = dynamic_cast<CallExpr*>(itr[0]);
+            if (tempCall != nullptr) {
+                TypeDescriptor *funcCall = tempCall->evalFunc(symTab);
+                if (funcCall == nullptr) {
+                    std::cout << "Error with function:: returning with no return value " << std::endl;
+                    exit(2);
+                }
+                else if (funcCall->checkIfInt()) {
+                    //int rhs = l[i]->evaluate(symTab);
+                    NumberDescriptor *desc = dynamic_cast<NumberDescriptor*>(funcCall);
+                    rhs = desc->value.intValue;
+                    //consolePrint += std::to_string(rhs);
+                }
+            }
+            else {
+                rhs = itr[0]->evaluate(symTab);
+            }
+        getStop() = rhs;
+        getStart() = 0;
+        getStep() = 1;
+        /*
         getStop() = itr[0]->evaluate(symTab);
         getStart() = 0;
         getStep() = 1;
+        */
     }
 }
 int &forRange::getStart() {
@@ -343,8 +422,32 @@ TypeDescriptor *CallExpr::evalFunc(SymTab &symTab) {
 }
 void CallExpr::evalParams(SymTab &symTab, std::vector<TypeDescriptor*> &storageList, ExprNode *value) {
     if (value->token().isName()) {
-            TypeDescriptor *desc = symTab.getValueFor(value->token().getName());
-            storageList.push_back(desc);
+            CallExpr *tempCall = dynamic_cast<CallExpr*>(value);
+            if (tempCall != nullptr) {
+                TypeDescriptor *funcCall = tempCall->evalFunc(symTab);
+                if (funcCall == nullptr) {
+                    std::cout << "Error with function:: printing with no return value " << std::endl;
+                    exit(2);
+                }
+                else if (funcCall->checkIfInt()) {
+                    //int rhs = l[i]->evaluate(symTab);
+                    NumberDescriptor *desc = dynamic_cast<NumberDescriptor*>(funcCall);
+                    storageList.push_back(desc);
+                    //int rhs = desc->value.intValue;
+                    //consolePrint += std::to_string(rhs);
+                }
+                else {
+                    //std::string rhs = l[i]->evaluateStr(symTab);
+                    StringDescriptor *desc = dynamic_cast<StringDescriptor*>(funcCall);
+                    storageList.push_back(desc);
+                    //std::string rhs = desc->value.stringValue;
+                    //consolePrint += rhs;
+                }
+            }
+            else {
+                TypeDescriptor *desc = symTab.getValueFor(value->token().getName());
+                storageList.push_back(desc);
+            }
             /*
             if (desc->checkIfInt()){
                 int rhs = value->evaluate(symTab);
