@@ -122,5 +122,17 @@ class CallExpr: public ExprNode {
         
 };
 
+class LenArray: public ExprNode {
+    public:
+        LenArray(Token token);
+        virtual void print();
+        virtual int evaluate(SymTab &symTab);
+        virtual std::string evaluateStr(SymTab &symTab);
+        
+        std::string &arrID();
+    private:
+        std::string _arrayId;
+};
+
 #include "Statements.hpp"
 #endif //EXPRINTER_ARITHEXPR_HPP

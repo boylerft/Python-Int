@@ -1,11 +1,22 @@
-a = [1]
-b = ["hi"]
+def arrFunc(b):
+    z = []
+    for i in range(b):
+        z.append(i)
+    return z
 
-b.push("to")
-a.push(2)
+a = [1, 2]
+
+b = len(a)
 print b
-print a
-a.pop()
-b.pop()
-print a
-print b
+
+print len(a)
+
+for i in range(0, len(a)):
+    print i
+
+z = []
+b = "hi"
+z.append(b)
+print z
+
+print arrFunc(3)

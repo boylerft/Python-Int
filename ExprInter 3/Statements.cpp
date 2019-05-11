@@ -90,48 +90,59 @@ void AssignmentStatement::evaluate(SymTab &symTab) {
     */
     
         //set array values
-    std::cout << "Right HEre " << std::endl;
+    //std::cout << "Right HEre " << std::endl;
     if (rhsExpression() == nullptr) {
         std::vector<ExprNode*> array = arrayContent();
-        // Get Array type
-        int type;
-        int check;
-        if( array[0]->token().isWholeNumber())
-            type = 1;
-        else if( array[0]->token().isStringValue())
-            type = 2;
+        if (array.empty()){
+            std::vector<int> intArray;
+            std::vector<std::string> stringArray;
+            symTab.setValueForArray(lhsVariable(), intArray, stringArray);
+        }
+        else {
+            // Get Array type
+            int type;
+            int check;
+            if( array[0]->token().isWholeNumber())
+                type = 1;
+            else if( array[0]->token().isStringValue())
+                type = 2;
 
-        // Check for homogeneous data
-        for (int i = 1; i < array.size(); i++) {
-            if( array[i]->token().isWholeNumber())
-                check = 1;
-            else if(array[i]->token().isStringValue())
-                check = 2;
-            if( type != check ){
-                std::cout << "Array is not homogeneous!!" << std::endl;
-                exit(1);
+            // Check for homogeneous data
+            for (int i = 1; i < array.size(); i++) {
+                if( array[i]->token().isWholeNumber())
+                    check = 1;
+                else if(array[i]->token().isStringValue())
+                    check = 2;
+                else if(array[i]->token().isArithmeticOperator())
+                    continue;
+                if( type != check ){
+                    std::cout << "Array is not homogeneous!!" << std::endl;
+                    exit(1);
+                }
             }
-        }
-        std::vector<int> intArray;
-        std::vector<std::string> stringArray;
-        // Int
-        if(type == 1){
-            for (int i = 0; i < array.size(); i++) {
-                int intElem = array[i]->evaluate(symTab);
-                intArray.push_back(intElem);
+            std::vector<int> intArray;
+            std::vector<std::string> stringArray;
+            // Int
+            if(type == 1){
+                for (int i = 0; i < array.size(); i++) {
+                    int intElem = array[i]->evaluate(symTab);
+                    intArray.push_back(intElem);
+                }
+                symTab.setValueForArray(lhsVariable(), intArray, stringArray);
             }
-            symTab.setValueForArray(lhsVariable(), intArray, stringArray);
-        }
-        // String
-        else if(type == 2){
-            for (int i = 0; i < array.size(); i++) {
-                std::string strElem = array[i]->evaluateStr(symTab);
-                stringArray.push_back(strElem);
+            // String
+            else if(type == 2){
+                for (int i = 0; i < array.size(); i++) {
+                    std::string strElem = array[i]->evaluateStr(symTab);
+                    stringArray.push_back(strElem);
+                }
+                symTab.setValueForArray(lhsVariable(), intArray, stringArray);
             }
-            symTab.setValueForArray(lhsVariable(), intArray, stringArray);
         }
     }
     else {
+        //std::cout << "Printing token" << std::endl;
+        //rhsExpression()->token().print();
         if (rhsExpression()->token().isName()) {
             CallExpr *tempCall = dynamic_cast<CallExpr*>(rhsExpression());
             if (tempCall != nullptr) {
@@ -155,6 +166,10 @@ void AssignmentStatement::evaluate(SymTab &symTab) {
                     //consolePrint += rhs;
                 }
             }
+            else if (rhsExpression()->token().isLenKey()) {
+                int rhs = rhsExpression()->evaluate(symTab);
+                symTab.setValueFor(lhsVariable(), rhs);
+            }
             else {
                 TypeDescriptor *desc = symTab.getValueFor(rhsExpression()->token().getName());
                 if (desc->checkIfInt()){
@@ -166,7 +181,8 @@ void AssignmentStatement::evaluate(SymTab &symTab) {
                     symTab.setValueForString(lhsVariable(), rhs);
                 }
             }
-        } // Handles string values
+        }
+        // Handles string values
         else if (rhsExpression()->token().isStringValue()) {
             std::string rhs = rhsExpression()->evaluateStr(symTab);
             symTab.setValueForString(lhsVariable(), rhs);
@@ -265,22 +281,47 @@ void PrintStatement::evaluate(SymTab &symTab) {
             CallExpr *tempCall = dynamic_cast<CallExpr*>(l[i]);
             if (tempCall != nullptr) {
                 TypeDescriptor *funcCall = tempCall->evalFunc(symTab);
+                
                 if (funcCall == nullptr) {
                     std::cout << "Error with function:: printing with no return value " << std::endl;
                     exit(2);
                 }
-                else if (funcCall->checkIfInt()) {
+                if (funcCall->checkIfInt()) {
                     //int rhs = l[i]->evaluate(symTab);
                     NumberDescriptor *desc = dynamic_cast<NumberDescriptor*>(funcCall);
                     int rhs = desc->value.intValue;
                     consolePrint += std::to_string(rhs);
                 }
-                else {
+                else if (funcCall->checkIfStr()){
                     //std::string rhs = l[i]->evaluateStr(symTab);
                     StringDescriptor *desc = dynamic_cast<StringDescriptor*>(funcCall);
                     std::string rhs = desc->value.stringValue;
                     consolePrint += rhs;
                 }
+                else {
+                    //std::cout << "checking arrys" << std::endl;
+                    ArrayDescriptor *tempDesc = dynamic_cast<ArrayDescriptor*>(funcCall);
+                    if (tempDesc->value.stringArr.empty()) {
+                        std::vector<int> rhs = tempDesc->value.intArr;
+                        for (int i = 0; i < rhs.size(); i++) {
+                            consolePrint += std::to_string(rhs[i]);
+                            consolePrint += " ";
+                        }
+                    }
+                    else {
+                        std::vector<std::string> rhs = tempDesc->value.stringArr;
+                        for (int i = 0; i < rhs.size(); i++) {
+                            //std::cout << "printing aray string: " << rhs[i] << std::endl;
+                            consolePrint += rhs[i];
+                            consolePrint += " ";
+                        }
+                    }
+                }
+                
+            }
+            else if (l[i]->token().isLenKey()) {
+                int rhs = l[i]->evaluate(symTab);
+                consolePrint += std::to_string(rhs);
             }
             else {
                 TypeDescriptor *desc = symTab.getValueFor(l[i]->token().getName());
@@ -313,7 +354,8 @@ void PrintStatement::evaluate(SymTab &symTab) {
                     }
                 }
             }
-        }   // Handles string variable
+        }
+        // Handles string variable
         else if (l[i]->token().isStringValue()) {
             std::string rhs = l[i]->evaluateStr(symTab);
             consolePrint += rhs;
@@ -565,7 +607,7 @@ void ReturnStatement::evaluate(SymTab &symTab) {
             if (tempCall != nullptr) {
                 TypeDescriptor *funcCall = tempCall->evalFunc(symTab);
                 if (funcCall == nullptr) {
-                    std::cout << "Error with function:: printing with no return value " << std::endl;
+                    std::cout << "Error with function:: no return value " << std::endl;
                     exit(2);
                 }
                 else if (funcCall->checkIfInt()) {
@@ -589,9 +631,23 @@ void ReturnStatement::evaluate(SymTab &symTab) {
                     int rhs = returnExpr()->evaluate(symTab);
                     symTab.setValueForRet(rhs);
                 }
-                else {
+                else if (desc->checkIfStr()) {
                     std::string rhs = returnExpr()->evaluateStr(symTab);
                     symTab.setValueForRet(rhs);
+                }
+                else {
+                    //std::cout << "checking arrys" << std::endl;
+                    ArrayDescriptor *tempDesc = dynamic_cast<ArrayDescriptor*>(desc);
+                    if (tempDesc->value.stringArr.empty()) {
+                        std::vector<int> rhs = tempDesc->value.intArr;
+                        std::vector<std::string> fake;
+                        symTab.setValueForRetArray(rhs, fake);
+                    }
+                    else {
+                        std::vector<std::string> rhs = tempDesc->value.stringArr;
+                        std::vector<int> fake;
+                        symTab.setValueForRetArray(fake, rhs);
+                    }
                 }
             }
         } // Handles string values
@@ -827,14 +883,12 @@ ArrayOp::ArrayOp(std::string id, std::string operation, ExprNode *args ):
 void ArrayOp::evaluate(SymTab &symTab){
     TypeDescriptor *array = symTab.getValueFor( _id );
     ArrayDescriptor * descArr =  dynamic_cast<ArrayDescriptor *>(array);
-
     if(_operation == "pop" ){
         int idx = 0;
         descArr->pop(idx);
 
     }
-    else if(_operation == "push") {
-        std::cout << "Got here " << std::endl;
+    else if(_operation == "append") {
         if (args()->token().isName()) {
             TypeDescriptor *desc = symTab.getValueFor(args()->token().getName());
             if (desc->checkIfInt()) {
@@ -897,7 +951,7 @@ void ArrayOp::evaluate(SymTab &symTab){
 }
 
 void ArrayOp::print(){
-    std::cout << "Array are dymb" << std::endl;
+    std::cout << "Doing Array Operations" << std::endl;
 }
 
 std::string &ArrayOp::id() {

@@ -25,6 +25,9 @@ void Token::print() const {
     else if( isInKey() ) std::cout << "in keyword found" ;
     else if( isRangeKey() ) std::cout << "range keyword found" ;
     else if( isDef() ) std::cout << "function found" ;
+    else if( isLenKey() ) std::cout << "len keyword found" ;
+    else if( isPopKey() ) std::cout << "pop keyword found" ;
+    else if( isPushKey() )std::cout << "push keyword found";
     else if( isReturn() ) std::cout << "Return statement found" ;
     else if( isAssignmentOperator() )  std::cout << " = " ;
     else if( isSemiColon() )  std::cout << ";" ;

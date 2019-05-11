@@ -26,6 +26,7 @@ public:
     void setValueForArray(std::string vName, std::vector<int> intarray, std::vector<std::string> strarray);
     void setValueForRet(int valueD);
     void setValueForRet(std::string valueD);
+    void setValueForRetArray(std::vector<int> intArray, std::vector<std::string> strArray);
     bool isDefined(std::string vName);
     TypeDescriptor *getValueFor(std::string vName);
     //std::map<std::string, TypeDescriptor *> openScope();

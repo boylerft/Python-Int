@@ -109,9 +109,10 @@ public:
     bool isElifKey() const { return _name == "elif"; }
     bool isInKey() const { return _name == "in"; }
     bool isRangeKey() const { return _name == "range"; }
+    bool isLenKey() const { return _name == "len"; }
     
     bool isPopKey() const { return _name == "pop"; }
-    bool isPushKey() const {return _name == "push"; }
+    bool isPushKey() const {return _name == "append"; }
     bool isArrOp() const {
         return isPopKey() || isPushKey();
     }

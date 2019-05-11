@@ -127,6 +127,34 @@ Statements *Parser::statements(SymTab &symTab) {
     return stmts;
 }
 
+ExprNode *Parser::arrayLen() {
+    // len
+    Token arrayLen = tokenizer.getToken();
+    if(!arrayLen.isLenKey())
+        die("Parser::ArrayLen", "Expected an 'len', instead got", arrayLen);
+
+    // (
+    Token openParen = tokenizer.getToken();
+    if(!openParen.isOpenParen())
+        die("Parser::ArrayLen", "Expected an '(', instead got", openParen);
+
+    // Array 'ID'
+    Token arrayID = tokenizer.getToken();
+    if(!arrayID.isName())
+        die("Parser::ArrayLen", "Expected 'ArrayID', instead got", arrayID);
+
+    //std::string id = arrayID.getName();
+
+    // )
+    Token closedParen = tokenizer.getToken();
+    if(!closedParen.isCloseParen())
+        die("Parser::ArrayOps", "Expected an '(', instead got", openParen);
+    LenArray *lArr = new LenArray(arrayLen);
+    lArr->arrID() = arrayID.getName();
+    
+    return lArr;
+}
+
 ArrayOp *Parser::arrayOps(){
     int popOrPush = 0;
 
@@ -515,13 +543,19 @@ Statements *Parser::suite(SymTab &symTab) {
 }
 
 std::vector<ExprNode*> Parser::arrayInit() {
+    std::vector<ExprNode*> arrayContents;
     // Check for open bracket
     Token openBracket = tokenizer.getToken();
     if(!openBracket.isOpenBrack())
         die("Parser::arrayInit", "Expected open brack, instead got", openBracket);
-
+    // check for empty array
+    Token checkBrack = tokenizer.getToken();
+    if (checkBrack.isCloseBrack())
+        return arrayContents;
+    else
+        tokenizer.ungetToken();
     // get array elements
-    std::vector<ExprNode*> arrayContents = testList();
+    arrayContents = testList();
 
     // Check for close bracket
     Token closeBracket = tokenizer.getToken();
@@ -745,7 +779,10 @@ ExprNode *Parser::factor() {
         ExprNode *left = p;
         return left;
     }
-    
+    else if (tok.isLenKey()) {
+        tokenizer.ungetToken();
+        return arrayLen();
+    }
     else if (tok.isName()) {
         auto tempName = tok;
         tok = tokenizer.getToken();

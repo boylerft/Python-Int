@@ -431,7 +431,7 @@ void CallExpr::evalParams(SymTab &symTab, std::vector<TypeDescriptor*> &storageL
             if (tempCall != nullptr) {
                 TypeDescriptor *funcCall = tempCall->evalFunc(symTab);
                 if (funcCall == nullptr) {
-                    std::cout << "Error with function:: printing with no return value " << std::endl;
+                    std::cout << "Error with function:: no return value " << std::endl;
                     exit(2);
                 }
                 else if (funcCall->checkIfInt()) {
@@ -536,4 +536,36 @@ std::vector<ExprNode*> &CallExpr::getArgList() {
 
 TypeDescriptor *&CallExpr::getReturn() {
     return _returnVal;
+}
+
+// Len Array
+LenArray::LenArray( Token token ): ExprNode{token}, _arrayId{""} {}
+
+void LenArray::print() {
+    token().print();
+}
+
+std::string &LenArray::arrID() {
+    return _arrayId;
+}
+
+int LenArray::evaluate(SymTab &symTab){
+    TypeDescriptor *desc = symTab.getValueFor(arrID());
+    ArrayDescriptor *aDesc = dynamic_cast<ArrayDescriptor*>(desc);
+
+    if(aDesc == nullptr){
+        std::cout << "ArrayLen::evaluate: Unable to get length" << std::endl;
+        exit(1);
+    }
+    int size = 0;
+    if(aDesc->value.intArr.empty())
+        size = aDesc->value.stringArr.size();
+    else
+        size = aDesc->value.intArr.size();
+    return size;
+
+}
+
+std::string LenArray::evaluateStr(SymTab &symTab) {
+    return "0";
 }

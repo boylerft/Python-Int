@@ -39,6 +39,7 @@ public:
     ExprNode *and_test();
     ExprNode *not_test();
     ExprNode *callExpr(Token fName);
+    ExprNode *arrayLen();
     
     ExprNode *rel_expr();
     ExprNode *rel_term();
