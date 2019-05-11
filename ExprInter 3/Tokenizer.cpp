@@ -248,6 +248,8 @@ Token Tokenizer::getToken() {
         token.symbol(c);
     else if( c == ',')
         token.symbol(c);
+    else if( c == '.')
+        token.symbol(c);
     else if( c == '\'' || c == '"') {
         token.setStringValue( readString(c) );
     }

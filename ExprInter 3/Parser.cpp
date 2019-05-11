@@ -113,6 +113,13 @@ Statements *Parser::statements(SymTab &symTab) {
                 // call function here
                 //tok = tokenizer.getToken();
             }
+            else if (tok.isPeriod()) {
+                tokenizer.ungetToken();
+                ArrayOp *arrOp = arrayOps();
+                arrOp->id() = name;
+                stmts->addStatement(arrOp);
+                tok = tokenizer.getToken();
+            }
             //tok = tokenizer.getToken();
         }
     }

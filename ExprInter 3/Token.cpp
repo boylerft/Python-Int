@@ -17,6 +17,7 @@ void Token::print() const {
     else if( isOpenBrack() ) std::cout << "[" ;
     else if( isCloseBrack() ) std::cout << "]" ;
     else if( isComma() ) std::cout << ",";
+    else if( isPeriod() )   std::cout << ".";
     else if( isApostrophe() ) std::cout << '\'' ;
     else if( isQuote() ) std::cout << '"' ;
     else if( isIndent() ) std::cout << "Indent found" ;

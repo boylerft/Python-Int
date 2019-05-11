@@ -1,5 +1,11 @@
 a = [1]
 b = ["hi"]
 
+b.push("to")
+a.push(2)
+print b
+print a
+a.pop()
+b.pop()
 print a
 print b
