@@ -48,8 +48,18 @@ struct StringDescriptor: public TypeDescriptor {
 
 struct ArrayDescriptor: public TypeDescriptor {
     ArrayDescriptor(types descType): TypeDescriptor(descType) {}
+    // void print();
+    // int getLength();
+    void pop(int index);
+    void push(int index);
+    void push(std::string index);
+
     struct {
         std::vector<int> intArr;
         std::vector<std::string> stringArr;
     } value;
+
+
+
+
 };

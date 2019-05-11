@@ -52,7 +52,8 @@ public:
     
     void reOp(std::string r) { _reOp = r; }
     std::string reOp() { return _reOp; }
-
+    
+    bool isPeriod() const {return _symbol == '.'; }
     bool isSemiColon() const { return _symbol == ';'; }
     bool isApostrophe() const { return _symbol == '\''; }
     bool isQuote() const { return _symbol == '"'; }
@@ -108,6 +109,12 @@ public:
     bool isElifKey() const { return _name == "elif"; }
     bool isInKey() const { return _name == "in"; }
     bool isRangeKey() const { return _name == "range"; }
+    
+    bool isPopKey() const { return _name == "pop"; }
+    bool isPushKey() const {return _name == "push"; }
+    bool isArrOp() const {
+        return isPopKey() || isPushKey();
+    }
     
     bool &isWholeNumber() { return _isWholeNumber; }
     bool isWholeNumber() const { return _isWholeNumber; }

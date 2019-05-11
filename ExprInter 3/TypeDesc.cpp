@@ -59,3 +59,46 @@ bool TypeDescriptor::checkIfStr() {
     }
 }
 
+void ArrayDescriptor::pop(int index){
+    ArrayDescriptor * desc = dynamic_cast<ArrayDescriptor *>(this);
+
+    if(desc->value.intArr.empty()) {
+        std::vector<std::string> tempArr = desc->value.stringArr;
+        tempArr.pop_back();
+        desc->value.stringArr = tempArr;
+        //desc->value.stringArr.erase(index);
+    }
+    else if(desc->value.stringArr.empty()) {
+        std::vector<int> tempArr = desc->value.intArr;
+        tempArr.pop_back();
+        desc->value.intArr = tempArr;
+    }
+        //desc->value.intArr.erase(index)
+}
+
+void ArrayDescriptor::push(int index) {
+    ArrayDescriptor * desc = dynamic_cast<ArrayDescriptor *>(this);
+
+    std::vector<int> tempArr = desc->value.intArr;
+    tempArr.push_back(index);
+
+    for (int i = 0; i < tempArr.size(); i++) {
+        std::cout << "Prining temparr elements" << tempArr[i] << std::endl;
+    }
+    desc->value.intArr = tempArr;
+
+}
+
+void ArrayDescriptor::push(std::string index) {
+    ArrayDescriptor * desc = dynamic_cast<ArrayDescriptor *>(this);
+
+    std::vector<std::string> tempArr = desc->value.stringArr;
+    tempArr.push_back(index);
+    for (int i = 0; i < tempArr.size(); i++) {
+        std::cout << "Prining temparr elements" << tempArr[i] << std::endl;
+    }
+    desc->value.stringArr = tempArr;
+        //desc->value.stringArr.erase(index);
+
+}
+

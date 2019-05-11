@@ -29,6 +29,7 @@ public:
     FuncStatement *funcStatement(SymTab &symTab);
     CallFunc *callStatement(Token fName);
     ReturnStatement *returnStatement();
+    ArrayOp *arrayOps();
     
     std::vector<ExprNode*> testList();
     std::vector<ExprNode*> arrayInit();

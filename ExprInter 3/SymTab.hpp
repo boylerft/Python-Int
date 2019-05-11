@@ -23,7 +23,7 @@ class SymTab {
 public:
     void setValueFor(std::string vName, int valueD);
     void setValueForString(std::string vName, std::string valueD);
-    void setValueForArr(std::string vName, std::vector<int> elems);
+    void setValueForArray(std::string vName, std::vector<int> intarray, std::vector<std::string> strarray);
     void setValueForRet(int valueD);
     void setValueForRet(std::string valueD);
     bool isDefined(std::string vName);

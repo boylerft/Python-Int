@@ -91,12 +91,12 @@ int InfixExprNode::evaluate(SymTab &symTab) {
             return lValue <= rValue;
         else if ( token().isGreaterThanOrEqualOperator() )
             return lValue >= rValue;
-        else if (token().isOr())
-            return lValue || rValue;
+        else if (token().isNot())
+            return !lValue;
         else if (token().isAnd())
             return lValue && rValue;
-        else if (token().isNot())
-            return 0;
+        else if (token().isOr())
+            return lValue || rValue;
         else {
             std::cout << "InfixExprNode::evaluate: don't know how to evaluate this operator\n";
             token().print();
@@ -381,6 +381,11 @@ TypeDescriptor *CallExpr::evalFunc(SymTab &symTab) {
     //std::cout << "func name: " << getFuncName() << std::endl;
     
     tempArgs = getArgList();
+    tempParams = currentFunc->funcParams();
+    if (tempArgs.size() != tempParams.size()) {
+        std::cout << "Passed values does not match Function param values" << std::endl;
+        exit(2);
+    }
     // Evaluate passed args
     if (!tempArgs.empty()) {
         for (int i = 0; i < tempArgs.size(); i++) {
@@ -389,7 +394,7 @@ TypeDescriptor *CallExpr::evalFunc(SymTab &symTab) {
         }
     }
     // get func params
-    tempParams = currentFunc->funcParams();
+    //tempParams = currentFunc->funcParams();
     std::cout << "Came here" << std::endl;
     // open new scope
     symTab.openScope();

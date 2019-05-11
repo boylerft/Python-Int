@@ -28,14 +28,39 @@ void SymTab::setValueForString(std::string vName, std::string valueD){
     scope.push(symTab);
 }
 
-void SymTab::setValueForArr(std::string vName, std::vector<int> elems) {
+void SymTab::setValueForArray(std::string vName, std::vector<int> intArray, std::vector<std::string> strArray) {
+    // Set Str array
     std::map<std::string, TypeDescriptor *> symTab = scope.top();
     scope.pop();
-    std::cout << vName << " <- array " << std::endl;
-    ArrayDescriptor *desc = new ArrayDescriptor(TypeDescriptor::ARRAY);
-    desc->value.intArr = elems;
-    symTab[vName] = desc;
-    scope.push(symTab);
+    if( intArray.empty() ){
+        std::cout << vName << " <- String array " << std::endl;
+        std::cout << vName << " <- [";
+        for(int i = 0; i < strArray.size(); i++){
+            std::cout << strArray[i];
+            if( i < strArray.size()-1 )
+                std::cout << ", ";
+        }
+        std::cout << "]" << std::endl;
+        ArrayDescriptor *desc = new ArrayDescriptor(TypeDescriptor::ARRAY);
+        desc->value.stringArr = strArray;
+        symTab[vName] = desc;
+        scope.push(symTab);
+    }
+    // Set Int array
+    else if( strArray.empty()){
+        std::cout << vName << " <- Integer array " << std::endl;
+        std::cout << vName << " <- [";
+        for(int i = 0; i < intArray.size(); i++){
+            std::cout << intArray[i];
+            if( i < intArray.size()-1 )
+                std::cout << ", ";
+        }
+        std::cout << "]" << std::endl;
+        ArrayDescriptor *desc = new ArrayDescriptor(TypeDescriptor::ARRAY);
+        desc->value.intArr = intArray;
+        symTab[vName] = desc;
+        scope.push(symTab);
+    }
 }
 
 void SymTab::setValueForRet(int valueD) {
@@ -77,6 +102,29 @@ TypeDescriptor *SymTab::getValueFor(std::string vName) {
     NumberDescriptor *desc = dynamic_cast<NumberDescriptor *>(symTab.find(vName)->second);
     if (desc == nullptr){
         StringDescriptor *sDesc = dynamic_cast<StringDescriptor *>(symTab.find(vName)->second);
+        if(sDesc == nullptr){
+            ArrayDescriptor * aDesc = dynamic_cast<ArrayDescriptor *>(symTab.find(vName)->second);
+            std::cout << "SymTab::getValueForArray: " << vName << " contains -- an array..." << std::endl;
+            return aDesc;
+        }
+        std::cout << "SymTab::getValueForStr: " << vName << " contains " << sDesc->value.stringValue << std::endl;
+        return sDesc;
+    }
+    else {
+        std::cout << "SymTab::getValueForInt: " << vName << " contains " << desc->value.intValue << std::endl;
+        return desc;
+    }
+}
+/*
+TypeDescriptor *SymTab::getValueFor(std::string vName) {
+    std::map<std::string, TypeDescriptor *> symTab = scope.top();
+    if( ! isDefined(vName)) {
+        std::cout << "SymTab::getValueFor: " << vName << " has not been defined.\n";
+        exit(1);
+    }
+    NumberDescriptor *desc = dynamic_cast<NumberDescriptor *>(symTab.find(vName)->second);
+    if (desc == nullptr){
+        StringDescriptor *sDesc = dynamic_cast<StringDescriptor *>(symTab.find(vName)->second);
         std::cout << "SymTab::getValueForStr: " << vName << " contains " << sDesc->value.stringValue << std::endl;
         return sDesc;
     }
@@ -85,7 +133,7 @@ TypeDescriptor *SymTab::getValueFor(std::string vName) {
         return desc;
     }
 }
-
+*/
 //std::map<std::string, TypeDescriptor *> openScope()
 
 void SymTab::openScope() {

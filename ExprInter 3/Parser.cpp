@@ -94,7 +94,6 @@ Statements *Parser::statements(SymTab &symTab) {
             if (tok.isAssignmentOperator()) {
                 tokenizer.ungetToken();
                 AssignmentStatement *assignStmt = assignStatement();
-                
                 assignStmt->lhsVariable() = name;
                 stmts->addStatement(assignStmt);
                 tok = tokenizer.getToken();
@@ -119,6 +118,57 @@ Statements *Parser::statements(SymTab &symTab) {
     }
     tokenizer.ungetToken();
     return stmts;
+}
+
+ArrayOp *Parser::arrayOps(){
+    int popOrPush = 0;
+
+    // Array 'ID'
+    //Token arrayID = tokenizer.getToken();
+    //if(!arrayID.isName())
+    //    die("Parser::ArrayOps", "Expected 'ArrayID', instead got", arrayID);
+
+    std::string id = "";//arrayID.getName();
+
+    // .
+    Token arraydot = tokenizer.getToken();
+    if(!arraydot.isPeriod())
+        die("Parser::ArrayOps", "Expected an '.', instead got", arraydot);
+
+    // append/pop
+    Token arrayOp = tokenizer.getToken();
+    //!arrayOp.isPushKey() ||
+    if(!arrayOp.isArrOp() )
+        die("Parser::ArrayOps", "Expected an 'push' or 'pop', instead got", arrayOp);
+
+    std::string op = arrayOp.getName();
+
+    if(arrayOp.isPushKey())
+        popOrPush = 1;
+
+    else if(arrayOp.isPopKey())
+        popOrPush = 2;
+
+    // (
+    Token openParen = tokenizer.getToken();
+    if(!openParen.isOpenParen())
+        die("Parser::ArrayOps", "Expected an '(', instead got", openParen);
+
+    ExprNode *index; // if pop leave index null
+
+    if(popOrPush == 1 ) // Get Append index
+        index = test();
+
+    //else if( operation == 2) { // Pop
+    //     // Perform operation on Array.index
+    // }
+
+    // )
+    Token closedParen = tokenizer.getToken();
+    if(!closedParen.isCloseParen())
+        die("Parser::ArrayOps", "Expected an '(', instead got", openParen);
+
+    return new ArrayOp(id, op, index);
 }
 
 ReturnStatement *Parser::returnStatement() {
@@ -190,7 +240,7 @@ ExprNode *Parser::callExpr(Token fName) {
         return c;
     }
 }
-
+/*
 AssignmentStatement *Parser::assignStatement() {
     //Token varName = tokenizer.getToken();
     //if (!varName.isName())
@@ -216,7 +266,38 @@ AssignmentStatement *Parser::assignStatement() {
         //varName.getName()
     return new AssignmentStatement(temp, rightHandSideExpr, arrayContent);
 }
+*/
 
+AssignmentStatement *Parser::assignStatement() {
+
+    std::vector<ExprNode *> arrayContent;   // remain empty if not array
+    ExprNode *rightHandSideExpr = nullptr;  // remain null if is array
+
+    //Token varName = tokenizer.getToken();
+    //if (!varName.isName())
+    //    die("Parser::assignStatement", "Expected a name token, instead got", varName);
+    std::string temp = "";
+    Token assignOp = tokenizer.getToken();
+    if (!assignOp.isAssignmentOperator())
+        die("Parser::assignStatement", "Expected an '=', instead got", assignOp);
+
+    // Array found
+    Token openBrack = tokenizer.getToken();
+    if (openBrack.isOpenBrack()) {
+            tokenizer.ungetToken();
+            arrayContent = arrayInit();
+            return new AssignmentStatement(temp, rightHandSideExpr, arrayContent );
+    }
+    // Other than array found
+    tokenizer.ungetToken();
+    rightHandSideExpr = test();
+
+    Token endOfLine = tokenizer.getToken();
+    if (!endOfLine.eol())
+        die("Parser::assignStatement", "Expected an end of line character, instead got", endOfLine);
+    //std::string temp = "";
+    return new AssignmentStatement(temp, rightHandSideExpr, arrayContent );
+}
 
 
 PrintStatement *Parser::printStatement() {
@@ -431,9 +512,10 @@ std::vector<ExprNode*> Parser::arrayInit() {
     Token openBracket = tokenizer.getToken();
     if(!openBracket.isOpenBrack())
         die("Parser::arrayInit", "Expected open brack, instead got", openBracket);
+
     // get array elements
     std::vector<ExprNode*> arrayContents = testList();
-    
+
     // Check for close bracket
     Token closeBracket = tokenizer.getToken();
     if(!closeBracket.isCloseBrack())
@@ -512,22 +594,33 @@ ExprNode *Parser::and_test() {
     tokenizer.ungetToken();
     return left;
 }
+
+ExprNode *Parser::not_test() {
+    ExprNode *left = rel_expr();
+    return left;
+}
 /*
 ExprNode *Parser::not_test() {
-    ExprNode *left = rel_expr()
+    ExprNode *left;
     Token tok = tokenizer.getToken();
     
     if (tok.isNot()) {
         InfixExprNode *p = new InfixExprNode(tok);
-        p->left() = left;
-        p->right() = rel_expr();
+        tokenizer.ungetToken();
+        p->right() = primary();
+        p->left() = rel_expr();
         left = p;
-        tok = tokenizer.getToken();
+        //tok = tokenizer.getToken();
+        return left;
     }
-    tokenizer.ungetToken();
-    return left;
+    else {
+        tokenizer.ungetToken();
+        left = rel_expr();
+        return left;
+    }
 }
 */
+/*
 // imnplement not, just like factor for negatives
 ExprNode *Parser::not_test() {
     // This function parses the grammar rules:
@@ -548,7 +641,7 @@ ExprNode *Parser::not_test() {
     tokenizer.ungetToken();
     return left;
 }
-
+*/
 ExprNode *Parser::rel_expr(){
     //This function parses the grammar rules: 
     

@@ -245,4 +245,21 @@ class CallFunc : public Statement {
     
 };
 
+class ArrayOp: public Statement {
+    public:
+        ArrayOp();
+        ArrayOp(std::string id, std::string operation, ExprNode *args);
+
+        std::string &id();
+        std::string &operation();
+        ExprNode *&args();
+
+        virtual void evaluate(SymTab &symTab);
+        virtual void print();
+    private:
+        std::string _id;
+        std::string _operation;
+        ExprNode *_args;
+};
+
 #endif //EXPRINTER_STATEMENTS_HPP
